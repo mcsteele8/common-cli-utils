@@ -12,22 +12,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-/*
-cliConfig struct is what is used to manage all configs for remi.
-each struct value can be given multiple tags for reading config values from multiple areas.
-
-env:      Is the tag used to pull environment variables during run time. Env tag value will hold priority over other tags
-file:     Is the tag used to pull file values stored in $HOME/.remi-cli/cfg.yaml
-default:  Is the tag that will be used if no env or file value can be found
-mask:     Is the tag to mask the output of the value
-
-Example:
-type cliConfig struct {
-	JiraUsername string `env:"REMI_CLI_JIRA_USERNAME" file:"jira_username" default:"empty"`
-	JiraPassword string `env:"REMI_CLI_JIRA_PASSWORD" file:"jira_password" default:"empty" mask:"true"`
-}
-*/
-
 type ctxKey string
 
 const (
@@ -45,15 +29,42 @@ type ConfigOptions struct {
 	CfgFileName              string
 	CfgFileType              string
 	CreateEmptyCfgIfNotFound bool
+	Verbose                  bool
 }
 
 var defaultCfgOptions = ConfigOptions{
-	CfgDirectory: "",
-	CfgFilePath:  "",
-	CfgFileName:  "config",
-	CfgFileType:  "yaml",
+	CfgDirectory:             "",
+	CfgFilePath:              "",
+	CfgFileName:              "config",
+	CfgFileType:              "yaml",
+	CreateEmptyCfgIfNotFound: false,
+	Verbose:                  false,
 }
 
+/*
+NewConfig function can be used to read config values from multiple areas.
+Provide a struct with the following and it will be populated with config values from multiple areas.
+
+env:      Is the tag used to pull environment variables during run time. Env tag value will hold priority over other tags
+file:     Is the tag used to pull file values stored in ConfigOptions.CfgFilePath
+default:  Is the tag that will be used if no env or file value can be found
+mask:     Is the tag to mask the output of the value
+
+Example:
+
+	type cliConfig struct {
+		JiraUsername string `env:"CLI_JIRA_USERNAME" file:"jira_username" default:"empty"`
+		JiraPassword string `env:"CLI_JIRA_PASSWORD" file:"jira_password" default:"empty" mask:"true"`
+	}
+
+cfg := &cliConfig{}
+
+cfgResult, err := config.NewConfig(cfg, nil)
+
+	if err != nil {
+		log.Fatalf("failed to set config values: %v", err)
+	}
+*/
 func NewConfig(configStruct any, cfgOptions *ConfigOptions) (any, error) {
 	if cfgOptions == nil {
 		cfgOptions = &defaultCfgOptions
@@ -82,7 +93,7 @@ func NewConfig(configStruct any, cfgOptions *ConfigOptions) (any, error) {
 		cfgFileFound = false
 	}
 
-	readStruct(val.Elem(), false)
+	readStruct(val.Elem(), cfgOptions.Verbose)
 	if !cfgFileFound && cfgOptions.CreateEmptyCfgIfNotFound {
 		if err := initEmptyCfg(cfgOptions); err != nil {
 			return nil, fmt.Errorf("failed to init empty config: %w", err)
@@ -107,17 +118,6 @@ func NewCtxWithConfig(ctx context.Context, configStruct any, cfgOptions *ConfigO
 func FromCtx(ctx context.Context) any {
 	return ctx.Value(cfgCtxKey)
 }
-
-// func init() {
-// 	var err error
-// 	home_dir, err = os.UserHomeDir()
-// 	if err != nil {
-// 		log.Fatalln("failed to get user home directory: ", err.Error())
-// 	}
-
-// 	cli_cfg_dir = path.Join(home_dir, ".remi-cli")
-// 	cli_cfg_path = path.Join(cli_cfg_dir, cli_cfg_file_name)
-// }
 
 func initEmptyCfg(cfgOptions *ConfigOptions) error {
 	// create an empty config file with -rwxrwxrwx	0777  read, write, & execute for owner, group and others permissions
