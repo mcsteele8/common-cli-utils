@@ -7,4 +7,5 @@ func RunExamples() {
 	exampleColor()
 	exampleConformationPrompt()
 	exampleKubeClient()
+	exampleSpinner()
 }
