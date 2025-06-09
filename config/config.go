@@ -89,8 +89,10 @@ func NewConfig(configStruct any, cfgOptions *ConfigOptions) (any, error) {
 	}
 
 	cfgFileFound := true
-	if err := viper.ReadInConfig(); err != nil && strings.Contains(err.Error(), "Not Found") {
+	if err := viper.ReadInConfig(); err != nil && (strings.Contains(err.Error(), "Not Found") || strings.Contains(err.Error(), "no such file or directory")) {
 		cfgFileFound = false
+	} else if err != nil && cfgOptions.Verbose {
+		fmt.Printf("error: %v\n", err)
 	}
 
 	readStruct(val.Elem(), cfgOptions.Verbose)
