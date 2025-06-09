@@ -121,8 +121,12 @@ func FromCtx(ctx context.Context) any {
 
 func initEmptyCfg(cfgOptions *ConfigOptions) error {
 	// create an empty config file with -rwxrwxrwx	0777  read, write, & execute for owner, group and others permissions
-	os.Mkdir(cfgOptions.CfgDirectory, 0777)
-	err := os.WriteFile(cfgOptions.CfgFilePath, []byte(""), 0777)
+	err := os.Mkdir(cfgOptions.CfgDirectory, 0777)
+	if err != nil {
+		return fmt.Errorf("failed to create cfg directory %w", err)
+	}
+
+	err = os.WriteFile(cfgOptions.CfgFilePath, []byte(""), 0777)
 	if err != nil {
 		return fmt.Errorf("failed to create an empty cfg file %w", err)
 	}
