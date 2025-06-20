@@ -39,20 +39,20 @@ func getInternalClusterKubeClient(ops ...options) (*kubernetes.Clientset, error)
 	}
 
 	config.UserAgent = getUserAgent(ops...)
-	clientset, err := kubernetes.NewForConfig(config)
+	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, wrapErr(err, "error creating clientset from in-cluster config")
 	}
 
-	return clientset, nil
+	return clientSet, nil
 }
 
 func getKubeClientWithContext(ops ...options) (*kubernetes.Clientset, error) {
-	kubeconfig, err := getKubeConfigPath()
+	kubeConfig, err := getKubeConfigPath()
 	if err != nil {
 		return nil, err
 	}
-	configLoadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig}
+	configLoadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeConfig}
 	configOverrides := &clientcmd.ConfigOverrides{CurrentContext: getKubeCtx(ops...)}
 
 	kConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(configLoadingRules, configOverrides).ClientConfig()
@@ -62,31 +62,31 @@ func getKubeClientWithContext(ops ...options) (*kubernetes.Clientset, error) {
 
 	kConfig.UserAgent = getUserAgent(ops...)
 
-	clientset, err := kubernetes.NewForConfig(kConfig)
+	clientSet, err := kubernetes.NewForConfig(kConfig)
 	if err != nil {
 		return nil, wrapErr(err, "error loading kube config. Do you have access to this cluster?")
 	}
 
-	return clientset, nil
+	return clientSet, nil
 
 }
 
 func getKubeClient(ops ...options) (*kubernetes.Clientset, error) {
-	kubeconfig, err := getKubeConfigPath()
+	kubeConfig, err := getKubeConfigPath()
 	if err != nil {
 		return nil, err
 	}
 
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfig)
 	if err != nil {
 		return nil, wrapErr(err, "error loading kube config")
 	}
 
 	config.UserAgent = getUserAgent(ops...)
-	clientset, err := kubernetes.NewForConfig(config)
+	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, wrapErr(err, "error loading kube config")
 	}
 
-	return clientset, nil
+	return clientSet, nil
 }

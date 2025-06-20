@@ -70,8 +70,13 @@ func serverRunningInCluster() bool {
 	return os.Getenv("KUBERNETES_SERVICE_HOST") != ""
 }
 
+var kubeConfigPath *string
+
 func getKubeConfigPath() (string, error) {
-	var kubeConfigPath *string
+	if kubeConfigPath != nil {
+		return *kubeConfigPath, nil
+	}
+
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatalln("failed to get user home directory: ", err.Error())

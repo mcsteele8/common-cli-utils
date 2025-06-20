@@ -45,11 +45,11 @@ func getInternalClusterIstioKubeClient(ops ...options) (*istioClient.Clientset, 
 }
 
 func getIstioKubeClientWithContext(ops ...options) (*istioClient.Clientset, error) {
-	kubeconfig, err := getKubeConfigPath()
+	kubeConfig, err := getKubeConfigPath()
 	if err != nil {
 		return nil, err
 	}
-	configLoadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig}
+	configLoadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeConfig}
 	configOverrides := &clientcmd.ConfigOverrides{CurrentContext: getKubeCtx(ops...)}
 
 	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(configLoadingRules, configOverrides).ClientConfig()
@@ -68,11 +68,11 @@ func getIstioKubeClientWithContext(ops ...options) (*istioClient.Clientset, erro
 }
 
 func getIstioKubeClient(ops ...options) (*istioClient.Clientset, error) {
-	kubeconfig, err := getKubeConfigPath()
+	kubeConfig, err := getKubeConfigPath()
 	if err != nil {
 		return nil, err
 	}
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfig)
 	if err != nil {
 		return nil, wrapErr(err, "error loading kube config")
 	}

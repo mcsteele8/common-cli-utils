@@ -45,12 +45,12 @@ func getInternalClusterDynamicKubeClient(ops ...options) (*dynamic.DynamicClient
 }
 
 func getDynamicKubeClientWithContext(ops ...options) (*dynamic.DynamicClient, error) {
-	kubeconfig, err := getKubeConfigPath()
+	kubeConfig, err := getKubeConfigPath()
 	if err != nil {
 		return nil, err
 	}
 
-	configLoadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig}
+	configLoadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeConfig}
 	configOverrides := &clientcmd.ConfigOverrides{CurrentContext: getKubeCtx(ops...)}
 
 	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(configLoadingRules, configOverrides).ClientConfig()
@@ -69,11 +69,11 @@ func getDynamicKubeClientWithContext(ops ...options) (*dynamic.DynamicClient, er
 }
 
 func getDynamicKubeClient(ops ...options) (*dynamic.DynamicClient, error) {
-	kubeconfig, err := getKubeConfigPath()
+	kubeConfig, err := getKubeConfigPath()
 	if err != nil {
 		return nil, err
 	}
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfig)
 	if err != nil {
 		return nil, wrapErr(err, "error loading kube config")
 	}
